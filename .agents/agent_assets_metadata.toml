@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "AZ7oaebbOd55rudJFmNum"
+uri = "file://guides/DesignMyLife-User-Guide.docx"
+type = "word_document"
+title = "DesignMyLife User Guide"
