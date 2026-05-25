@@ -5,4 +5,10 @@ generated = []
 id = "AZ7oaebbOd55rudJFmNum"
 uri = "file://guides/DesignMyLife-User-Guide.docx"
 type = "word_document"
-title = "DesignMyLife User Guide"
+title = "DesignMyLife User Guide (DOCX for Word)"
+
+[[outputs]]
+id = "hcD9oeBG3N2PiqoBPMRbw"
+uri = "file://guides/DesignMyLife-User-Guide.tar.gz"
+type = "unspecified"
+title = "DesignMyLife User Guide (HTML + DOCX archive)"

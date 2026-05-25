@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DesignMyLife - Complete User Guide</title>
+<style>
+  :root {
+    --primary: #2E5548;
+    --primary-light: #3A6B5A;
+    --primary-bg: #f4f8f6;
+    --accent: #c8e6c9;
+    --text: #333;
+    --text-light: #666;
+    --text-muted: #888;
+    --border: #e0e0e0;
+    --card-bg: #fff;
+    --code-bg: #f5f5f5;
+    --warning-bg: #fff3e0;
+    --warning-border: #ffb74d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--primary-bg);
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    box-shadow: 0 0 40px rgba(0,0,0,0.08);
+  }
+  .cover {
+    text-align: center;
+    padding: 80px 40px 60px;
+    background: var(--primary);
+    color: white;
+  }
+  .cover h1 {
+    font-size: 42px;
+    margin: 0 0 10px;
+    font-weight: 700;
+    letter-spacing: -1px;
+  }
+  .cover .subtitle {
+    font-size: 20px;
+    opacity: 0.85;
+    font-weight: 300;
+    margin-bottom: 30px;
+  }
+  .cover .meta {
+    font-size: 13px;
+    opacity: 0.6;
+    margin-top: 20px;
+  }
+  .toc {
+    padding: 40px;
+    border-bottom: 2px solid var(--border);
+  }
+  .toc h2 {
+    color: var(--primary);
+    font-size: 22px;
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    columns: 2;
+    column-gap: 40px;
+  }
+  .toc-list li {
+    padding: 8px 0;
+    border-bottom: 1px dotted var(--border);
+    break-inside: avoid;
+  }
+  .toc-list li a {
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .toc-list li a:hover {
+    color: var(--primary);
+  }
+  .toc-list .num {
+    display: inline-block;
+    width: 28px;
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .content {
+    padding: 40px;
+  }
+  .section {
+    margin-bottom: 50px;
+  }
+  .section h2 {
+    color: var(--primary);
+    font-size: 26px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--accent);
+    page-break-after: avoid;
+  }
+  .section h3 {
+    color: var(--primary-light);
+    font-size: 18px;
+    margin-top: 28px;
+    margin-bottom: 12px;
+  }
+  .section p {
+    margin: 12px 0;
+  }
+  ol, ul {
+    margin: 12px 0;
+    padding-left: 24px;
+  }
+  li {
+    margin: 8px 0;
+  }
+  blockquote {
+    margin: 20px 0;
+    padding: 16px 20px;
+    background: var(--primary-bg);
+    border-left: 4px solid var(--primary);
+    font-style: italic;
+    color: var(--primary);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  th {
+    background: var(--primary);
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:nth-child(even) {
+    background: var(--primary-bg);
+  }
+  .tip-box {
+    margin: 20px 0;
+    padding: 16px 20px;
+    background: var(--warning-bg);
+    border-left: 4px solid var(--warning-border);
+  }
+  .tip-box strong {
+    color: #e65100;
+  }
+  .footer {
+    text-align: center;
+    padding: 30px 40px;
+    border-top: 2px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  @media print {
+    body { background: white; }
+    .container { box-shadow: none; }
+    .cover { background: var(--primary) !important; -webkit-print-color-adjust: exact; }
+    th { background: var(--primary) !important; -webkit-print-color-adjust: exact; }
+    .section { page-break-inside: avoid; }
+    h2 { page-break-after: avoid; }
+  }
+  @media (max-width: 600px) {
+    .cover h1 { font-size: 32px; }
+    .cover { padding: 50px 20px 40px; }
+    .toc, .content { padding: 20px; }
+    .toc-list { columns: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- COVER -->
+  <div class="cover">
+    <h1>DesignMyLife</h1>
+    <div class="subtitle">Complete User Guide</div>
+    <div class="meta">Version 1.0 &middot; May 2026</div>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <h2>Table of Contents</h2>
+    <ul class="toc-list">
+      <li><a href="#s1"><span class="num">1.</span> Getting Started</a></li>
+      <li><a href="#s2"><span class="num">2.</span> The Cockpit (Dashboard)</a></li>
+      <li><a href="#s3"><span class="num">3.</span> Habits</a></li>
+      <li><a href="#s4"><span class="num">4.</span> Goals</a></li>
+      <li><a href="#s5"><span class="num">5.</span> Tasks</a></li>
+      <li><a href="#s6"><span class="num">6.</span> Journal</a></li>
+      <li><a href="#s7"><span class="num">7.</span> Focus (Pomodoro Timer)</a></li>
+      <li><a href="#s8"><span class="num">8.</span> Analytics</a></li>
+      <li><a href="#s9"><span class="num">9.</span> Settings</a></li>
+      <li><a href="#s10"><span class="num">10.</span> BCI Score Explained</a></li>
+      <li><a href="#s11"><span class="num">11.</span> AI Coaching</a></li>
+      <li><a href="#s12"><span class="num">12.</span> Mobile Usage</a></li>
+      <li><a href="#s13"><span class="num">13.</span> Publishing Your App</a></li>
+      <li><a href="#s14"><span class="num">14.</span> Troubleshooting</a></li>
+      <li><a href="#s15"><span class="num">15.</span> Tips for Success</a></li>
+    </ul>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- 1. GETTING STARTED -->
+    <div class="section" id="s1">
+      <h2>1. Getting Started</h2>
+
+      <h3>Creating an Account</h3>
+      <p>When you first open DesignMyLife, you will see the sign-in screen.</p>
+      <ol>
+        <li>Click <strong>"Create one"</strong> below the Sign in button.</li>
+        <li>Enter your email address and choose a secure password.</li>
+        <li>Click the <strong>Sign up</strong> button to register.</li>
+        <li>You will be automatically signed in and taken to the Cockpit (Dashboard).</li>
+      </ol>
+      <p>Your login session lasts <strong>30 days</strong>. After that, you will need to sign in again. Your data is saved securely in the PostgreSQL database, so nothing is lost when you log out.</p>
+
+      <h3>Signing In</h3>
+      <p>If you already have an account, simply enter your email and password on the sign-in screen and click <strong>Sign in</strong>. If you forget your password, contact the app administrator to reset it.</p>
+
+      <h3>Navigation</h3>
+      <p>Once signed in, you will see the sidebar on the left (on desktop) or a hamburger menu (on mobile) with links to all sections:</p>
+      <ul>
+        <li><strong>Cockpit</strong> -- Dashboard overview</li>
+        <li><strong>Habits</strong> -- Daily check-ins and streaks</li>
+        <li><strong>Goals</strong> -- Long-term targets with milestones</li>
+        <li><strong>Tasks</strong> -- Priority-based todo list</li>
+        <li><strong>Journal</strong> -- Daily writing with mood tracking</li>
+        <li><strong>Focus</strong> -- Pomodoro timer</li>
+        <li><strong>Analytics</strong> -- Visual charts and trends</li>
+        <li><strong>Settings</strong> -- Account and preferences</li>
+      </ul>
+    </div>
+
+    <!-- 2. THE COCKPIT -->
+    <div class="section" id="s2">
+      <h2>2. The Cockpit (Dashboard)</h2>
+      <p>The Cockpit is your home screen. It gives you a single-glance overview of your entire life operating system.</p>
+
+      <h3>Behavioral Consistency Index (BCI)</h3>
+      <p>The large score card at the top shows your <strong>BCI score</strong> -- a number from 0 to 100 that summarizes how consistent you are across all tracked areas of your life. This is calculated automatically using a weighted formula:</p>
+      <blockquote>BCI = (Habits x 0.4) + (Goals x 0.3) + (Tasks x 0.2) + (Journal x 0.1)</blockquote>
+      <p>You do not need to calculate this yourself. The app computes it in real time every time you check in a habit, complete a task, update a goal, or write a journal entry.</p>
+
+      <h3>Quick Stats Row</h3>
+      <p>Below the BCI card, four smaller cards show counts for:</p>
+      <ul>
+        <li>Active habits (and how many you completed today)</li>
+        <li>Pending tasks (split by status)</li>
+        <li>Active goals</li>
+        <li>Total journal entries written</li>
+      </ul>
+      <p>Click any of these cards to jump directly to that section of the app.</p>
+    </div>
+
+    <!-- 3. HABITS -->
+    <div class="section" id="s3">
+      <h2>3. Habits</h2>
+      <p>Habits are the foundation of your behavioral consistency. Track daily or weekly routines and build streaks over time.</p>
+
+      <h3>Creating a Habit</h3>
+      <ol>
+        <li>Go to the <strong>Habits</strong> page from the sidebar.</li>
+        <li>Click the <strong>"New"</strong> button in the top-right corner.</li>
+        <li>Enter a name (e.g., "Drink 2L water", "Read 20 pages").</li>
+        <li>Optionally add a description to remind yourself why this habit matters.</li>
+        <li>Choose a frequency: <strong>Daily</strong> or <strong>Weekly</strong>.</li>
+        <li>Click <strong>"Create habit"</strong> to save.</li>
+      </ol>
+
+      <h3>Checking In</h3>
+      <p>Each habit card shows a <strong>circle icon</strong> on the left. Tap or click it to mark the habit as done for today. A filled circle means completed. The card will also show a line-through on the habit name.</p>
+      <p>Check-ins can only be done <strong>once per day</strong> per habit. If you already checked in, the circle will be filled and disabled.</p>
+
+      <h3>Streak Tracking</h3>
+      <p>Every habit tracks two numbers:</p>
+      <ul>
+        <li><strong>Current Streak</strong> -- how many consecutive days (or weeks) you have checked in without missing.</li>
+        <li><strong>Longest Streak</strong> -- the highest streak you have ever achieved for this habit.</li>
+      </ul>
+      <p>If you miss a day, your current streak resets to 0. Your longest streak remains as a record to beat.</p>
+
+      <h3>Completion History Calendar</h3>
+      <p>Click the <strong>chevron (down arrow)</strong> on any habit card to expand a GitHub-style heatmap calendar. It shows the last <strong>91 days</strong> (13 weeks) of your completion history:</p>
+      <ul>
+        <li><strong>Dark green squares</strong> = completed days</li>
+        <li><strong>Light gray squares</strong> = missed days</li>
+        <li><strong>Empty squares</strong> = future or before the habit was created</li>
+      </ul>
+      <p>This visual pattern helps you identify which days of the week you are strongest and where you tend to fall off.</p>
+
+      <h3>Editing and Deleting Habits</h3>
+      <p>Click the <strong>pencil icon</strong> on any habit card to edit its name, description, or frequency. Click the <strong>trash icon</strong> to delete it permanently. Deleting a habit also removes all its check-in history.</p>
+    </div>
+
+    <!-- 4. GOALS -->
+    <div class="section" id="s4">
+      <h2>4. Goals</h2>
+      <p>Goals are long-term targets you want to achieve. Break them into milestones to track progress incrementally.</p>
+
+      <h3>Creating a Goal</h3>
+      <ol>
+        <li>Go to the <strong>Goals</strong> page.</li>
+        <li>Click the <strong>"New"</strong> button.</li>
+        <li>Enter a name and description.</li>
+        <li>Choose a category (e.g., Career, Health, Finance, Learning, Personal).</li>
+        <li>Set a target date if you have a deadline.</li>
+        <li>Click <strong>"Create goal"</strong> to save.</li>
+      </ol>
+
+      <h3>Adding Milestones</h3>
+      <p>Every goal has a <strong>Milestones</strong> section. Click "Add milestone" and type a step (e.g., "Complete Chapter 1", "Save $500"). Milestones act as a checklist inside each goal.</p>
+      <p>As you check off milestones, the goal's progress bar updates automatically. For example, if a goal has 4 milestones and you complete 2, the progress is <strong>50%</strong>.</p>
+
+      <h3>Goal Status</h3>
+      <p>Goals can have one of three statuses:</p>
+      <ul>
+        <li><strong>Active</strong> -- currently in progress (default)</li>
+        <li><strong>Completed</strong> -- finished. This also updates the BCI score.</li>
+        <li><strong>On Hold</strong> -- paused but kept in the system for later</li>
+      </ul>
+      <p>Use the status dropdown on each goal card to change it.</p>
+
+      <h3>Editing and Deleting Goals</h3>
+      <p>Click the <strong>pencil icon</strong> to edit any goal. Click the <strong>trash icon</strong> to delete it. Deleting a goal also removes all its milestones permanently.</p>
+    </div>
+
+    <!-- 5. TASKS -->
+    <div class="section" id="s5">
+      <h2>5. Tasks</h2>
+      <p>Tasks are short-term actionable items with priority levels and a status workflow.</p>
+
+      <h3>Creating a Task</h3>
+      <ol>
+        <li>Go to the <strong>Tasks</strong> page.</li>
+        <li>Click the <strong>"New"</strong> button.</li>
+        <li>Enter a title and optional description.</li>
+        <li>Set the priority: <strong>Urgent</strong>, <strong>High</strong>, <strong>Medium</strong>, or <strong>Low</strong>.</li>
+        <li>Set the status: <strong>To Do</strong>, <strong>In Progress</strong>, or <strong>Completed</strong>.</li>
+        <li>Optionally set a due date.</li>
+        <li>Click <strong>"Create task"</strong> to save.</li>
+      </ol>
+
+      <h3>Priority System</h3>
+      <p>Tasks are color-coded by priority:</p>
+      <ul>
+        <li><strong>Urgent</strong> -- red badge. Handle immediately.</li>
+        <li><strong>High</strong> -- orange badge. Important but not immediate.</li>
+        <li><strong>Medium</strong> -- yellow/amber badge. Standard priority.</li>
+        <li><strong>Low</strong> -- green badge. Can be deferred.</li>
+      </ul>
+
+      <h3>Status Workflow</h3>
+      <p>Tasks move through three statuses:</p>
+      <ul>
+        <li><strong>To Do</strong> -- not started yet</li>
+        <li><strong>In Progress</strong> -- actively being worked on</li>
+        <li><strong>Completed</strong> -- done. Moves to the Completed tab.</li>
+      </ul>
+      <p>Use the tabs at the top of the Tasks page to filter by status. The badge on each tab shows the count.</p>
+
+      <h3>Due Dates</h3>
+      <p>If a task has a due date, it will appear next to the task title. Tasks that are overdue (past due date and not completed) will stand out visually.</p>
+    </div>
+
+    <!-- 6. JOURNAL -->
+    <div class="section" id="s6">
+      <h2>6. Journal</h2>
+      <p>The Journal is a simple, markdown-free writing space for daily reflection. Track your mood and build a personal archive over time.</p>
+
+      <h3>Creating an Entry</h3>
+      <ol>
+        <li>Go to the <strong>Journal</strong> page.</li>
+        <li>Click the <strong>"New"</strong> button.</li>
+        <li>Select your mood: <strong>Great</strong>, <strong>Good</strong>, <strong>Neutral</strong>, <strong>Bad</strong>, or <strong>Rough</strong>.</li>
+        <li>Write freely in the content box. There is no formatting needed.</li>
+        <li>Add <strong>tags</strong> (comma-separated) if you want to organize entries by theme (e.g., "work, stress, breakthrough").</li>
+        <li>Click <strong>"Save entry"</strong> to store it.</li>
+      </ol>
+
+      <h3>Reading Your Entries</h3>
+      <p>Journal entries are displayed as cards in reverse chronological order (newest first). Each card shows:</p>
+      <ul>
+        <li>The date and time</li>
+        <li>Your mood (with a color badge)</li>
+        <li>A word count</li>
+        <li>Any tags you added</li>
+        <li>The first few lines of content</li>
+      </ul>
+      <p>Click any card to open the full entry in a detail view.</p>
+
+      <h3>Searching and Filtering</h3>
+      <p>Use the search bar at the top of the Journal page to find entries by:</p>
+      <ul>
+        <li>Keyword in the content</li>
+        <li>Tag name</li>
+        <li>Date range (if you type a date like "2026-05")</li>
+      </ul>
+      <p>The total word count across all entries is shown in the page header.</p>
+
+      <h3>Editing and Deleting</h3>
+      <p>Open an entry in detail view to edit or delete it. Changes are saved immediately.</p>
+    </div>
+
+    <!-- 7. FOCUS -->
+    <div class="section" id="s7">
+      <h2>7. Focus (Pomodoro Timer)</h2>
+      <p>The Focus page helps you enter deep work using the <strong>Pomodoro Technique</strong> -- focused work sessions broken up by short breaks.</p>
+
+      <h3>How It Works</h3>
+      <p>The Pomodoro Technique is simple:</p>
+      <ol>
+        <li>Choose a task you want to work on.</li>
+        <li>Set a timer for <strong>25 minutes</strong> and focus exclusively on that task.</li>
+        <li>When the timer rings, take a <strong>5-minute break</strong>.</li>
+        <li>After 4 pomodoros, take a longer <strong>15-minute break</strong>.</li>
+      </ol>
+      <p>This method trains your brain to focus in short, intense bursts and prevents burnout.</p>
+
+      <h3>Timer Controls</h3>
+      <p>The Focus page has a large ring timer in the center:</p>
+      <ul>
+        <li><strong>Choose mode</strong>: 25 min (Focus), 5 min (Short Break), or 15 min (Long Break)</li>
+        <li><strong>Start</strong> -- begin the countdown. The ring fills as time passes.</li>
+        <li><strong>Pause</strong> -- freeze the timer. Click Resume to continue.</li>
+        <li><strong>Reset</strong> -- return to the full duration.</li>
+        <li><strong>Auto-advance</strong> -- automatically switch between Focus and Break modes when the timer ends.</li>
+      </ul>
+
+      <h3>Session Counter</h3>
+      <p>The number of completed focus sessions is tracked and saved in your browser. This count resets only if you clear your browser's local storage. It is not tied to your account on the server.</p>
+    </div>
+
+    <!-- 8. ANALYTICS -->
+    <div class="section" id="s8">
+      <h2>8. Analytics</h2>
+      <p>The Analytics page visualizes your behavioral data with interactive charts. It is read-only -- you cannot edit data here, only view trends.</p>
+
+      <h3>Charts Available</h3>
+
+      <p><strong>BCI Component Breakdown</strong></p>
+      <p>Four cards at the top show the weighted contribution of each component to your overall BCI score:</p>
+      <ul>
+        <li><strong>Streaks (S)</strong> -- weighted 0.4</li>
+        <li><strong>Consistency (C)</strong> -- weighted 0.3</li>
+        <li><strong>Task Completion (T)</strong> -- weighted 0.2</li>
+        <li><strong>Goal Progress (G)</strong> -- weighted 0.1</li>
+      </ul>
+
+      <p><strong>Habit Completions (Bar Chart)</strong></p>
+      <p>A bar chart showing how many habits you completed each day over the last 7 days. Bars are taller on productive days and shorter (or zero) on missed days.</p>
+
+      <p><strong>BCI Radar Chart</strong></p>
+      <p>A radar (spider) chart plotting your current scores across the four BCI dimensions. A symmetrical shape means balanced consistency. A lopsided shape means you are strong in some areas and weak in others.</p>
+
+      <p><strong>Streak Leaderboard</strong></p>
+      <p>A bar chart ranking your habits by current streak length. The longest streak is on the left, shortest on the right.</p>
+
+      <p><strong>Task Status Pie Chart</strong></p>
+      <p>A pie chart showing the proportion of your tasks in each status: To Do, In Progress, and Completed. A healthy ratio has a large Completed slice.</p>
+
+      <h3>When to Check Analytics</h3>
+      <p>Review your Analytics page at the end of each week to identify patterns. Ask yourself:</p>
+      <ul>
+        <li>Which days of the week do I check in the most habits?</li>
+        <li>Is my BCI trending up or down?</li>
+        <li>Which habit has my longest streak? Can I extend it?</li>
+        <li>Do I have too many tasks stuck in "To Do"?</li>
+      </ul>
+    </div>
+
+    <!-- 9. SETTINGS -->
+    <div class="section" id="s9">
+      <h2>9. Settings</h2>
+      <p>The Settings page manages your account and app preferences.</p>
+
+      <h3>Profile</h3>
+      <p>Update your display name. This name appears in the app header. Click <strong>"Update profile"</strong> to save.</p>
+
+      <h3>Password</h3>
+      <p>Change your password by entering your current password and a new password. Click <strong>"Change password"</strong> to confirm. You will stay signed in after changing your password.</p>
+
+      <h3>AI Coaching</h3>
+      <p>DesignMyLife includes an optional AI coaching feature powered by Anthropic Claude. When enabled, the AI can analyze your BCI data and habits to provide personalized suggestions.</p>
+      <div class="tip-box">
+        <strong>Important:</strong> AI coaching is entirely optional. The BCI score works with pure math and does not require AI. If no AI API key is configured, the AI section is disabled and the app functions fully.
+      </div>
+      <p>To enable AI coaching, the app administrator must add an <strong>AI_API_KEY</strong> environment variable. Then toggle the switch in Settings to turn it on.</p>
+    </div>
+
+    <!-- 10. BCI SCORE -->
+    <div class="section" id="s10">
+      <h2>10. BCI Score Explained</h2>
+      <p>The <strong>Behavioral Consistency Index (BCI)</strong> is the central metric of DesignMyLife. It distills all your tracked behaviors into a single score from 0 to 100.</p>
+
+      <h3>The Formula</h3>
+      <blockquote>BCI = (S x 0.4) + (C x 0.3) + (T x 0.2) + (G x 0.1)</blockquote>
+      <p>Where:</p>
+      <ul>
+        <li><strong>S (Streaks)</strong> -- derived from your habit streak lengths. Longer streaks = higher S.</li>
+        <li><strong>C (Consistency)</strong> -- derived from your habit check-in rate over the last 30 days. More regular = higher C.</li>
+        <li><strong>T (Task Completion)</strong> -- derived from the percentage of tasks you have completed versus total created.</li>
+        <li><strong>G (Goal Progress)</strong> -- derived from the average completion percentage across all your active goals.</li>
+      </ul>
+
+      <h3>Score Ranges</h3>
+      <table>
+        <tr><th>Range</th><th>Meaning</th></tr>
+        <tr><td>0 - 25</td><td>Getting started. Focus on building one or two core habits.</td></tr>
+        <tr><td>26 - 50</td><td>Building momentum. You have some consistency but gaps remain.</td></tr>
+        <tr><td>51 - 75</td><td>Strong consistency. Most habits and goals are on track.</td></tr>
+        <tr><td>76 - 100</td><td>Exceptional. You are highly consistent across all life areas.</td></tr>
+      </table>
+      <p>Your BCI updates automatically in real time. You do not need to refresh the page.</p>
+    </div>
+
+    <!-- 11. AI COACHING -->
+    <div class="section" id="s11">
+      <h2>11. AI Coaching</h2>
+      <p>AI Coaching is an optional premium feature that uses Anthropic's Claude AI to analyze your data and provide personalized guidance.</p>
+
+      <h3>What AI Coaching Does</h3>
+      <ul>
+        <li>Analyzes your BCI components to identify your weakest area.</li>
+        <li>Suggests specific habits to start or improve based on your patterns.</li>
+        <li>Provides motivational messaging tailored to your current streaks.</li>
+        <li>Recommends goal adjustments if you are overloaded with tasks.</li>
+      </ul>
+
+      <h3>How to Enable It</h3>
+      <ol>
+        <li>The app administrator must add an <strong>AI_API_KEY</strong> environment variable to the project settings.</li>
+        <li>Go to <strong>Settings</strong> in the app.</li>
+        <li>Toggle the <strong>"AI Coaching"</strong> switch to ON.</li>
+        <li>Return to the Cockpit. An AI coaching panel will appear with personalized suggestions.</li>
+      </ol>
+
+      <h3>Privacy Note</h3>
+      <p>AI Coaching sends your BCI scores and habit names to Anthropic's API for analysis. No passwords, emails, or journal content is transmitted. The app administrator controls whether the feature is available.</p>
+
+      <h3>Without AI</h3>
+      <p>If AI is not enabled, the app works perfectly. The BCI score is calculated with pure mathematics. All features -- habits, goals, tasks, journal, analytics, and focus -- function identically.</p>
+    </div>
+
+    <!-- 12. MOBILE -->
+    <div class="section" id="s12">
+      <h2>12. Mobile Usage</h2>
+      <p>DesignMyLife is fully responsive and works on phones, tablets, and desktops. The layout adapts automatically to your screen size.</p>
+
+      <h3>Mobile Layout</h3>
+      <ul>
+        <li>The sidebar is hidden on small screens. Tap the <strong>hamburger menu</strong> (three lines) in the top-left to open the navigation drawer.</li>
+        <li>The BCI score card and stats cards stack vertically on phones.</li>
+        <li>Habit cards show streaks inline on mobile instead of in a separate column.</li>
+        <li>The Focus timer stays centered and readable on all screen sizes.</li>
+        <li>Journal entry cards switch to a single-column layout on phones for easy reading.</li>
+      </ul>
+
+      <h3>Tips for Mobile</h3>
+      <ul>
+        <li>Add the app to your home screen for quick access (it works like a native app in your browser).</li>
+        <li>Check in habits first thing in the morning before you get busy.</li>
+        <li>Use the Focus timer during commutes or waiting times for micro-sessions.</li>
+        <li>Write journal entries on your phone during quiet moments -- the mood selector is one tap.</li>
+      </ul>
+    </div>
+
+    <!-- 13. PUBLISHING -->
+    <div class="section" id="s13">
+      <h2>13. Publishing Your App</h2>
+      <p>You can publish DesignMyLife to the web for free and share it with anyone.</p>
+
+      <h3>Is Publishing Free?</h3>
+      <p><strong>Yes.</strong> Replit's free tier includes deployment hosting. Your app gets a free subdomain like <code>your-project.replit.app</code>. You can publish and republish as many times as you want at no cost.</p>
+
+      <h3>How to Publish</h3>
+      <ol>
+        <li>Make sure the app works in the preview pane (all pages load, you can sign in, data saves).</li>
+        <li>Click the <strong>Publish</strong> button in the Replit UI (top-right corner).</li>
+        <li>Choose <strong>"Autoscale"</strong> as the deployment type (best for web apps with a backend).</li>
+        <li>Click <strong>Publish</strong>. Replit builds and deploys automatically.</li>
+        <li>Your app is live at the provided URL within a few minutes.</li>
+      </ol>
+
+      <h3>Updating After Publishing</h3>
+      <p>You can edit your code anytime and republish:</p>
+      <ul>
+        <li>Make changes in the Replit editor.</li>
+        <li>Test them in the preview pane.</li>
+        <li>Click <strong>Publish</strong> again. The new build deploys automatically.</li>
+        <li>Your live URL stays the same. User data in the database is preserved.</li>
+      </ul>
+      <p>There is <strong>no limit</strong> to how many times you can republish the same project.</p>
+
+      <h3>What Gets Deployed</h3>
+      <ul>
+        <li>The React frontend (compiled and minified)</li>
+        <li>The Express API server (backend)</li>
+        <li>The PostgreSQL database (data persists between deployments)</li>
+        <li>All environment variables configured in Replit secrets</li>
+      </ul>
+
+      <h3>Custom Domain</h3>
+      <p>You can connect a custom domain (e.g., designmylife.com) if you upgrade to a paid Replit plan. Free-tier users use the <code>.replit.app</code> subdomain.</p>
+    </div>
+
+    <!-- 14. TROUBLESHOOTING -->
+    <div class="section" id="s14">
+      <h2>14. Troubleshooting</h2>
+
+      <h3>Cannot Sign In</h3>
+      <ul>
+        <li>Check that Caps Lock is off.</li>
+        <li>If you forgot your password, ask the app administrator to reset it in the database.</li>
+        <li>If the sign-in button does nothing, check that the API server is running (see the Workflows panel).</li>
+      </ul>
+
+      <h3>Data Not Saving</h3>
+      <ul>
+        <li>Check that the API server workflow is running (green dot in the Workflows panel).</li>
+        <li>Check the browser console (F12) for red error messages.</li>
+        <li>Make sure you are signed in. Anonymous users cannot save data.</li>
+      </ul>
+
+      <h3>BCI Score Stuck at 0</h3>
+      <ul>
+        <li>Create at least one habit and check in at least once.</li>
+        <li>Create at least one goal with milestones and mark some complete.</li>
+        <li>Create at least one task and mark it completed.</li>
+        <li>Write at least one journal entry.</li>
+      </ul>
+      <p>The BCI requires data in all four areas to produce a meaningful score.</p>
+
+      <h3>Page Not Loading or Blank</h3>
+      <ul>
+        <li>Refresh the browser (Ctrl+R or Cmd+R).</li>
+        <li>Check that the frontend workflow is running in the Workflows panel.</li>
+        <li>Clear browser cache and hard-refresh (Ctrl+Shift+R or Cmd+Shift+R).</li>
+      </ul>
+
+      <h3>AI Coaching Not Working</h3>
+      <ul>
+        <li>Confirm that an <strong>AI_API_KEY</strong> environment variable is set in Replit Secrets.</li>
+        <li>Check that the AI toggle in Settings is turned ON.</li>
+        <li>If no key is configured, AI coaching is gracefully disabled and the app works normally.</li>
+      </ul>
+    </div>
+
+    <!-- 15. TIPS FOR SUCCESS -->
+    <div class="section" id="s15">
+      <h2>15. Tips for Success</h2>
+      <p>Here are proven strategies to get the most out of DesignMyLife:</p>
+
+      <h3>Start Small</h3>
+      <p>Do not create 10 habits on day one. Start with 1-2 simple daily habits (e.g., drink water, stretch 5 minutes). Mastery builds momentum.</p>
+
+      <h3>Stack Habits</h3>
+      <p>Link a new habit to an existing one. Example: "After I brush my teeth, I will meditate for 2 minutes." This triggers the new habit automatically.</p>
+
+      <h3>Use the Focus Timer for Everything</h3>
+      <p>The Pomodoro timer is not just for work. Use it for exercise, reading, studying, or even household chores. The ritual of starting a timer creates a mental boundary between distraction and focus.</p>
+
+      <h3>Review Weekly</h3>
+      <p>Every Sunday, spend 5 minutes on the Analytics page. Look at:</p>
+      <ul>
+        <li>Your BCI trend (is it going up?)</li>
+        <li>Which habits had the weakest week (low completion)</li>
+        <li>Goals that are stalled (no milestone progress)</li>
+        <li>Journal mood patterns (are you consistently "Rough" on Mondays?)</li>
+      </ul>
+
+      <h3>Write Even When You Do Not Feel Like It</h3>
+      <p>Journal entries do not need to be long. A single sentence about your day counts. The act of recording your mood creates self-awareness that compounds over time.</p>
+
+      <h3>Break Goals into Tiny Milestones</h3>
+      <p>A goal like "Get fit" is too vague. Break it into milestones: "Walk 10 minutes daily for a week," "Do 10 pushups," "Try a yoga class." Small wins fuel motivation.</p>
+
+      <h3>Protect Your Streaks</h3>
+      <p>Streaks are powerful psychological motivators. If you are about to break a streak, do the bare minimum. A 2-minute meditation still counts as a check-in. Consistency beats intensity.</p>
+
+      <h3>Use Tags to Find Patterns</h3>
+      <p>Tag journal entries with themes like work, family, health, stress. After a month, search for "stress" and review those entries. You will spot triggers you never noticed.</p>
+
+      <h3>Celebrate Milestones</h3>
+      <p>When you hit a 7-day streak, complete a goal, or reach a BCI of 50, acknowledge it. The app tracks the data, but the meaning comes from you. Positive reinforcement makes habits stick.</p>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    DesignMyLife User Guide v1.0 &middot; Built on Replit
+  </div>
+
+</div>
+
+</body>
+</html>
