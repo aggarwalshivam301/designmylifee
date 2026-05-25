@@ -5,7 +5,8 @@
  * DesignMyLife API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { AIAnalysis } from './aIAnalysis';
 
-export interface HealthStatus {
-  status: string;
+export interface ReflectionResult {
+  analysis: AIAnalysis;
 }

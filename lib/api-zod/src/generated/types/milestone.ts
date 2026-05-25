@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface Milestone {
+  id: string;
+  title: string;
+  done: boolean;
+  /** @nullable */
+  dueDate?: string | null;
 }

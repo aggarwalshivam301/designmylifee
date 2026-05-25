@@ -5,7 +5,8 @@
  * DesignMyLife API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { Milestone } from './milestone';
 
-export interface HealthStatus {
-  status: string;
+export interface MilestonesInput {
+  milestones: Milestone[];
 }
