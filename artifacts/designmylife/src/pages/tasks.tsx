@@ -152,16 +152,16 @@ export default function Tasks() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-serif font-bold text-foreground">Tasks</h1>
-          <p className="text-muted-foreground mt-1">
-            {counts.todo} pending &middot; {counts["in-progress"]} in progress &middot; {counts.completed} done
+          <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">Tasks</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {counts.todo} pending &middot; {counts["in-progress"]} active &middot; {counts.completed} done
           </p>
         </div>
-        <Button onClick={openCreate} data-testid="button-new-task">
-          <Plus className="w-4 h-4 mr-2" />
-          New task
+        <Button onClick={openCreate} size="sm" className="shrink-0" data-testid="button-new-task">
+          <Plus className="w-4 h-4 mr-1.5" />
+          New
         </Button>
       </div>
 
@@ -267,7 +267,7 @@ export default function Tasks() {
                 rows={2}
               />
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="space-y-2">
                 <Label>Priority</Label>
                 <Select value={form.priority} onValueChange={v => setForm(f => ({ ...f, priority: v }))}>

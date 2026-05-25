@@ -110,11 +110,11 @@ export default function Focus() {
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="max-w-lg mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-serif font-bold text-foreground">Focus</h1>
-          <p className="text-muted-foreground mt-1">Deep work sessions to build momentum.</p>
+          <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">Focus</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Deep work sessions to build momentum.</p>
         </div>
         <Button 
           variant="ghost" 

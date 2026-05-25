@@ -99,13 +99,13 @@ export default function Analytics() {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <h1 className="text-3xl font-serif font-bold text-foreground">Analytics</h1>
-        <p className="text-muted-foreground mt-1">Visualize your consistency and behavioral patterns.</p>
+        <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">Analytics</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Visualize your consistency and behavioral patterns.</p>
       </div>
 
       {/* BCI Summary Row */}
       {summary?.bci && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {bciData.map((d, i) => (
             <Card key={d.name}>
               <CardContent className="pt-5 pb-4">
@@ -120,7 +120,7 @@ export default function Analytics() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Habit completion last 7 days */}
         <Card>
           <CardHeader>

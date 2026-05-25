@@ -21,7 +21,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Circle, Plus, Pencil, Trash2, Flame, Trophy, Calendar } from "lucide-react";
+import { HabitStreakCalendar } from "@/components/habit-streak-calendar";
+import { CheckCircle2, Circle, Plus, Pencil, Trash2, Flame, Trophy, ChevronDown, ChevronUp } from "lucide-react";
 
 interface Habit {
   id: number;
@@ -53,6 +54,7 @@ export default function Habits() {
 
   const [showDialog, setShowDialog] = useState(false);
   const [editTarget, setEditTarget] = useState<Habit | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
   const [form, setForm] = useState({ name: "", description: "", frequency: "daily" });
 
   const invalidate = () => {
@@ -95,7 +97,11 @@ export default function Habits() {
 
   const handleDelete = (id: number) => {
     deleteHabit.mutate({ id }, {
-      onSuccess: () => { invalidate(); toast({ title: "Habit deleted" }); },
+      onSuccess: () => {
+        if (expandedId === id) setExpandedId(null);
+        invalidate();
+        toast({ title: "Habit deleted" });
+      },
     });
   };
 
@@ -109,11 +115,11 @@ export default function Habits() {
     return (
       <div className="space-y-6 animate-in fade-in duration-300">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-serif font-bold">Habits</h1>
-          <Skeleton className="h-10 w-36" />
+          <h1 className="text-2xl md:text-3xl font-serif font-bold">Habits</h1>
+          <Skeleton className="h-10 w-32" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {[1, 2, 3].map(i => <Skeleton key={i} className="h-48 rounded-xl" />)}
+        <div className="space-y-3">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-28 rounded-xl" />)}
         </div>
       </div>
     );
@@ -123,114 +129,135 @@ export default function Habits() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-serif font-bold text-foreground">Habits</h1>
-          <p className="text-muted-foreground mt-1">
-            {list.length} habits tracked &middot; {list.filter(isCompletedToday).length} done today
+          <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">Habits</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {list.length} tracked &middot; {list.filter(isCompletedToday).length} done today
           </p>
         </div>
-        <Button onClick={openCreate} data-testid="button-new-habit">
-          <Plus className="w-4 h-4 mr-2" />
-          New habit
+        <Button onClick={openCreate} size="sm" className="shrink-0" data-testid="button-new-habit">
+          <Plus className="w-4 h-4 mr-1.5" />
+          New
         </Button>
       </div>
 
       {list.length === 0 && (
-        <Card className="text-center py-20 border-dashed">
+        <Card className="text-center py-16 border-dashed">
           <CardContent>
-            <CheckCircle2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground/40" />
+            <CheckCircle2 className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />
             <p className="text-muted-foreground font-medium">No habits yet</p>
-            <p className="text-sm text-muted-foreground mt-1">Start with one small daily habit and build from there.</p>
-            <Button className="mt-6" onClick={openCreate}>Add your first habit</Button>
+            <p className="text-sm text-muted-foreground mt-1">Start with one small daily habit.</p>
+            <Button className="mt-5" onClick={openCreate}>Add your first habit</Button>
           </CardContent>
         </Card>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="space-y-3">
         {list.map((habit) => {
           const done = isCompletedToday(habit);
-          const rate = habit.completionHistory.length > 0
-            ? Math.round(
-                (habit.completionHistory.filter(c => c.completed).length /
-                  Math.max(habit.completionHistory.length, 1)) * 100
-              )
-            : 0;
+          const isExpanded = expandedId === habit.id;
+
           return (
             <Card
               key={habit.id}
-              className={`transition-all duration-200 ${done ? "opacity-80" : "hover:shadow-md"}`}
+              className={`transition-all duration-200 ${done ? "" : "hover:shadow-sm"}`}
               data-testid={`habit-card-${habit.id}`}
             >
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between gap-2">
+              <CardHeader className="pb-0 pt-4 px-4">
+                <div className="flex items-start gap-3">
+                  {/* Check-in button — left side */}
+                  <button
+                    onClick={() => !done && handleCheckIn(habit.id)}
+                    disabled={done || checkInHabit.isPending}
+                    className={`mt-0.5 shrink-0 transition-all duration-200 ${done ? "text-primary scale-110" : "text-muted-foreground/40 hover:text-primary hover:scale-110"}`}
+                    data-testid={`button-checkin-${habit.id}`}
+                    aria-label="Check in"
+                  >
+                    {done
+                      ? <CheckCircle2 className="w-6 h-6" />
+                      : <Circle className="w-6 h-6" />
+                    }
+                  </button>
+
+                  {/* Name + meta */}
                   <div className="flex-1 min-w-0">
-                    <CardTitle className={`text-base font-semibold leading-snug ${done ? "line-through text-muted-foreground" : ""}`}>
-                      {habit.name}
-                    </CardTitle>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <CardTitle className={`text-sm font-semibold leading-snug ${done ? "line-through text-muted-foreground" : ""}`}>
+                        {habit.name}
+                      </CardTitle>
+                      <Badge variant="outline" className="text-xs capitalize shrink-0">{habit.frequency}</Badge>
+                    </div>
                     {habit.description && (
-                      <p className="text-xs text-muted-foreground mt-1 truncate">{habit.description}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{habit.description}</p>
                     )}
                   </div>
-                  <Badge variant="outline" className="shrink-0 capitalize text-xs">
-                    {habit.frequency}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-3 text-center">
-                  <div>
-                    <div className="flex items-center justify-center gap-1 text-primary">
-                      <Flame className="w-3.5 h-3.5" />
-                      <span className="font-bold font-serif text-lg">{habit.currentStreak}</span>
+
+                  {/* Stats — streaks */}
+                  <div className="hidden sm:flex items-center gap-4 text-center shrink-0">
+                    <div>
+                      <div className="flex items-center gap-1 text-primary">
+                        <Flame className="w-3 h-3" />
+                        <span className="font-bold font-serif text-base">{habit.currentStreak}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">streak</p>
                     </div>
-                    <p className="text-xs text-muted-foreground">streak</p>
+                    <div>
+                      <div className="flex items-center gap-1 text-chart-2">
+                        <Trophy className="w-3 h-3" />
+                        <span className="font-bold font-serif text-base">{habit.longestStreak}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">best</p>
+                    </div>
                   </div>
-                  <div>
-                    <div className="flex items-center justify-center gap-1 text-chart-2">
-                      <Trophy className="w-3.5 h-3.5" />
-                      <span className="font-bold font-serif text-lg">{habit.longestStreak}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">best</p>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-center gap-1 text-chart-3">
-                      <Calendar className="w-3.5 h-3.5" />
-                      <span className="font-bold font-serif text-lg">{rate}%</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">rate</p>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-0.5 shrink-0">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(habit)} data-testid={`button-edit-${habit.id}`}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(habit.id)} data-testid={`button-delete-${habit.id}`}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost" size="icon" className="h-8 w-8"
+                      onClick={() => setExpandedId(isExpanded ? null : habit.id)}
+                      data-testid={`button-expand-${habit.id}`}
+                    >
+                      {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </Button>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={done ? "secondary" : "default"}
-                    className="flex-1 transition-all"
-                    onClick={() => !done && handleCheckIn(habit.id)}
-                    disabled={done || checkInHabit.isPending}
-                    data-testid={`button-checkin-${habit.id}`}
-                  >
-                    {done ? (
-                      <><CheckCircle2 className="w-4 h-4 mr-2" /> Done!</>
-                    ) : (
-                      <><Circle className="w-4 h-4 mr-2" /> Check in</>
-                    )}
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(habit)} data-testid={`button-edit-${habit.id}`}>
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" onClick={() => handleDelete(habit.id)} data-testid={`button-delete-${habit.id}`}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                {/* Mobile stats row */}
+                <div className="sm:hidden flex items-center gap-4 mt-2 ml-9 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1 text-primary">
+                    <Flame className="w-3 h-3" /> {habit.currentStreak} streak
+                  </span>
+                  <span className="flex items-center gap-1 text-chart-2">
+                    <Trophy className="w-3 h-3" /> {habit.longestStreak} best
+                  </span>
                 </div>
-              </CardContent>
+              </CardHeader>
+
+              {/* Expandable calendar */}
+              {isExpanded && (
+                <CardContent className="pt-4 pb-4 px-4 border-t mt-3">
+                  <p className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wide">Completion history</p>
+                  <HabitStreakCalendar
+                    completionHistory={habit.completionHistory}
+                    habitName={habit.name}
+                    frequency={habit.frequency}
+                  />
+                </CardContent>
+              )}
             </Card>
           );
         })}
       </div>
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="font-serif">{editTarget ? "Edit habit" : "New habit"}</DialogTitle>
           </DialogHeader>
@@ -268,11 +295,12 @@ export default function Habits() {
               </Select>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDialog(false)}>Cancel</Button>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setShowDialog(false)} className="w-full sm:w-auto">Cancel</Button>
             <Button
               onClick={handleSave}
               disabled={createHabit.isPending || updateHabit.isPending || !form.name.trim()}
+              className="w-full sm:w-auto"
               data-testid="button-save-habit"
             >
               {editTarget ? "Save changes" : "Create habit"}

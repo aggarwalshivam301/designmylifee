@@ -105,8 +105,8 @@ export default function Settings() {
   return (
     <div className="space-y-6 max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <h1 className="text-3xl font-serif font-bold text-foreground">Settings</h1>
-        <p className="text-muted-foreground mt-1">Manage your account and preferences.</p>
+        <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">Settings</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Manage your account and preferences.</p>
       </div>
 
       {/* Profile */}

@@ -33,13 +33,13 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <h1 className="text-3xl font-serif font-bold text-foreground">Cockpit</h1>
-        <p className="text-muted-foreground mt-1">Your life's operating system overview.</p>
+        <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">Cockpit</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Your life's operating system overview.</p>
       </div>
 
       {summary && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="bg-primary text-primary-foreground border-primary-border">
               <CardHeader className="pb-2">
                 <CardTitle className="text-primary-foreground/80 text-sm font-medium">Behavioral Consistency Index</CardTitle>
@@ -88,7 +88,7 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             <Card className="hover-elevate transition-all">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Habits</CardTitle>

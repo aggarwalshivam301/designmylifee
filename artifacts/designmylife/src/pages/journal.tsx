@@ -126,7 +126,7 @@ export default function Journal() {
           <h1 className="text-3xl font-serif font-bold">Journal</h1>
           <Skeleton className="h-10 w-36" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-40 rounded-xl" />)}
         </div>
       </div>
@@ -139,14 +139,14 @@ export default function Journal() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-serif font-bold text-foreground">Journal</h1>
-          <p className="text-muted-foreground mt-1">{list.length} entries &middot; {totalWords.toLocaleString()} words written</p>
+          <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">Journal</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">{list.length} entries &middot; {totalWords.toLocaleString()} words</p>
         </div>
-        <Button onClick={openCreate} data-testid="button-new-entry">
-          <Plus className="w-4 h-4 mr-2" />
-          New entry
+        <Button onClick={openCreate} size="sm" className="shrink-0" data-testid="button-new-entry">
+          <Plus className="w-4 h-4 mr-1.5" />
+          New
         </Button>
       </div>
 
@@ -161,7 +161,7 @@ export default function Journal() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {sorted.map((entry) => (
           <Card
             key={entry.id}
