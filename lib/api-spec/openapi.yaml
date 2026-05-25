@@ -3,20 +3,31 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: DesignMyLife API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: habits
+    description: Habit tracking operations
+  - name: goals
+    description: Goal management operations
+  - name: tasks
+    description: Task management operations
+  - name: journal
+    description: Journal entry operations
+  - name: ai
+    description: AI and BCI operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,7 +35,629 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ── Auth ────────────────────────────────────────────────────────────────────
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/profile:
+    get:
+      operationId: getProfile
+      tags: [auth]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    put:
+      operationId: updateProfile
+      tags: [auth]
+      summary: Update user profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdate"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /auth/change-password:
+    put:
+      operationId: changePassword
+      tags: [auth]
+      summary: Change user password
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordChange"
+      responses:
+        "200":
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/toggle-ai:
+    put:
+      operationId: toggleAI
+      tags: [auth]
+      summary: Toggle AI features for user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ToggleAIInput"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  # ── Habits ──────────────────────────────────────────────────────────────────
+  /habits:
+    get:
+      operationId: listHabits
+      tags: [habits]
+      summary: List all habits for current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of habits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Habit"
+    post:
+      operationId: createHabit
+      tags: [habits]
+      summary: Create a new habit
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HabitInput"
+      responses:
+        "201":
+          description: Created habit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Habit"
+
+  /habits/{id}:
+    put:
+      operationId: updateHabit
+      tags: [habits]
+      summary: Update a habit
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HabitUpdate"
+      responses:
+        "200":
+          description: Updated habit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Habit"
+    delete:
+      operationId: deleteHabit
+      tags: [habits]
+      summary: Delete a habit
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /habits/{id}/checkin:
+    post:
+      operationId: checkInHabit
+      tags: [habits]
+      summary: Check in a habit for today
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated habit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Habit"
+
+  # ── Goals ───────────────────────────────────────────────────────────────────
+  /goals:
+    get:
+      operationId: listGoals
+      tags: [goals]
+      summary: List all goals for current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of goals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Goal"
+    post:
+      operationId: createGoal
+      tags: [goals]
+      summary: Create a new goal
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GoalInput"
+      responses:
+        "201":
+          description: Created goal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Goal"
+
+  /goals/{id}:
+    put:
+      operationId: updateGoal
+      tags: [goals]
+      summary: Update a goal
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GoalUpdate"
+      responses:
+        "200":
+          description: Updated goal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Goal"
+    delete:
+      operationId: deleteGoal
+      tags: [goals]
+      summary: Delete a goal
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /goals/{id}/milestones:
+    put:
+      operationId: updateGoalMilestones
+      tags: [goals]
+      summary: Update milestones for a goal
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MilestonesInput"
+      responses:
+        "200":
+          description: Updated goal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Goal"
+
+  # ── Tasks ───────────────────────────────────────────────────────────────────
+  /tasks:
+    get:
+      operationId: listTasks
+      tags: [tasks]
+      summary: List all tasks for current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+    post:
+      operationId: createTask
+      tags: [tasks]
+      summary: Create a new task
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskInput"
+      responses:
+        "201":
+          description: Created task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+
+  /tasks/{id}:
+    put:
+      operationId: updateTask
+      tags: [tasks]
+      summary: Update a task
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskUpdate"
+      responses:
+        "200":
+          description: Updated task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+    delete:
+      operationId: deleteTask
+      tags: [tasks]
+      summary: Delete a task
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Journal ─────────────────────────────────────────────────────────────────
+  /journal:
+    get:
+      operationId: listJournalEntries
+      tags: [journal]
+      summary: List all journal entries for current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of journal entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JournalEntry"
+    post:
+      operationId: createJournalEntry
+      tags: [journal]
+      summary: Create a new journal entry
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JournalInput"
+      responses:
+        "201":
+          description: Created journal entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JournalEntry"
+
+  /journal/{id}:
+    put:
+      operationId: updateJournalEntry
+      tags: [journal]
+      summary: Update a journal entry
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JournalUpdate"
+      responses:
+        "200":
+          description: Updated journal entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JournalEntry"
+    delete:
+      operationId: deleteJournalEntry
+      tags: [journal]
+      summary: Delete a journal entry
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── AI / BCI ─────────────────────────────────────────────────────────────────
+  /ai/status:
+    get:
+      operationId: getAIStatus
+      tags: [ai]
+      summary: Get AI configuration status
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: AI status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AIStatus"
+
+  /ai/quick-bci:
+    post:
+      operationId: quickBCI
+      tags: [ai]
+      summary: Calculate BCI score (no AI, math only)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: BCI result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BCIResult"
+
+  /ai/analyze-behavior:
+    post:
+      operationId: analyzeBehavior
+      tags: [ai]
+      summary: Full BCI + optional AI behavioral analysis
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeBehaviorInput"
+      responses:
+        "200":
+          description: BCI + AI analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BehaviorAnalysisResult"
+
+  /ai/decompose-goal:
+    post:
+      operationId: decomposeGoal
+      tags: [ai]
+      summary: AI goal decomposition into milestones
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DecomposeGoalInput"
+      responses:
+        "200":
+          description: Goal milestones
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GoalDecompositionResult"
+
+  /ai/analyze-reflection:
+    post:
+      operationId: analyzeReflection
+      tags: [ai]
+      summary: AI journal reflection analysis
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReflectionInput"
+      responses:
+        "200":
+          description: AI reflection analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReflectionResult"
+
+  /ai/optimize-tasks:
+    post:
+      operationId: optimizeTasks
+      tags: [ai]
+      summary: AI task prioritization
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Optimized task order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskOptimizationResult"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [ai]
+      summary: Dashboard summary stats
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
     HealthStatus:
       type: object
@@ -34,3 +667,575 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    # ── Auth Schemas ──────────────────────────────────────────────────────────
+    RegisterInput:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    ProfileUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        avatar:
+          type: ["string", "null"]
+
+    PasswordChange:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
+
+    ToggleAIInput:
+      type: object
+      required: [aiEnabled]
+      properties:
+        aiEnabled:
+          type: boolean
+
+    User:
+      type: object
+      required: [id, name, email, aiEnabled, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        avatar:
+          type: ["string", "null"]
+        aiEnabled:
+          type: boolean
+        createdAt:
+          type: string
+
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    # ── Habit Schemas ─────────────────────────────────────────────────────────
+    HabitCompletion:
+      type: object
+      required: [date, completed]
+      properties:
+        date:
+          type: string
+        completed:
+          type: boolean
+
+    Habit:
+      type: object
+      required: [id, userId, name, frequency, currentStreak, longestStreak, isActive, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        frequency:
+          type: string
+          enum: [daily, weekly]
+        goalId:
+          type: ["integer", "null"]
+        currentStreak:
+          type: integer
+        longestStreak:
+          type: integer
+        completionHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/HabitCompletion"
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+
+    HabitInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        frequency:
+          type: string
+          enum: [daily, weekly]
+        goalId:
+          type: ["integer", "null"]
+
+    HabitUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        frequency:
+          type: string
+          enum: [daily, weekly]
+        goalId:
+          type: ["integer", "null"]
+        isActive:
+          type: boolean
+
+    # ── Goal Schemas ──────────────────────────────────────────────────────────
+    Milestone:
+      type: object
+      required: [id, title, done]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        done:
+          type: boolean
+        dueDate:
+          type: ["string", "null"]
+
+    Goal:
+      type: object
+      required: [id, userId, title, category, progress, status, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        category:
+          type: string
+          enum: [career, health, learning, finance, relationships, project, other]
+        targetDate:
+          type: ["string", "null"]
+        progress:
+          type: integer
+        status:
+          type: string
+          enum: [active, completed, paused]
+        linkedHabitIds:
+          type: array
+          items:
+            type: integer
+        milestones:
+          type: array
+          items:
+            $ref: "#/components/schemas/Milestone"
+        aiDecomposed:
+          type: boolean
+        createdAt:
+          type: string
+
+    GoalInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [career, health, learning, finance, relationships, project, other]
+        targetDate:
+          type: ["string", "null"]
+
+    GoalUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [career, health, learning, finance, relationships, project, other]
+        targetDate:
+          type: ["string", "null"]
+        progress:
+          type: integer
+        status:
+          type: string
+          enum: [active, completed, paused]
+
+    MilestonesInput:
+      type: object
+      required: [milestones]
+      properties:
+        milestones:
+          type: array
+          items:
+            $ref: "#/components/schemas/Milestone"
+
+    # ── Task Schemas ──────────────────────────────────────────────────────────
+    Task:
+      type: object
+      required: [id, userId, title, priority, status, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        status:
+          type: string
+          enum: [todo, in-progress, completed]
+        dueDate:
+          type: ["string", "null"]
+        goalId:
+          type: ["integer", "null"]
+        completedAt:
+          type: ["string", "null"]
+        estimatedMinutes:
+          type: integer
+        createdAt:
+          type: string
+
+    TaskInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        dueDate:
+          type: ["string", "null"]
+        goalId:
+          type: ["integer", "null"]
+        estimatedMinutes:
+          type: integer
+
+    TaskUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        status:
+          type: string
+          enum: [todo, in-progress, completed]
+        dueDate:
+          type: ["string", "null"]
+        goalId:
+          type: ["integer", "null"]
+        estimatedMinutes:
+          type: integer
+
+    # ── Journal Schemas ───────────────────────────────────────────────────────
+    AIAnalysis:
+      type: object
+      properties:
+        themes:
+          type: array
+          items:
+            type: string
+        insights:
+          type: array
+          items:
+            type: string
+        suggestions:
+          type: array
+          items:
+            type: string
+        sentiment:
+          type: string
+        analyzedAt:
+          type: ["string", "null"]
+
+    JournalEntry:
+      type: object
+      required: [id, userId, content, mood, wordCount, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        title:
+          type: ["string", "null"]
+        content:
+          type: string
+        mood:
+          type: string
+          enum: [great, good, okay, bad, awful]
+        tags:
+          type: array
+          items:
+            type: string
+        wordCount:
+          type: integer
+        aiAnalysis:
+          $ref: "#/components/schemas/AIAnalysis"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    JournalInput:
+      type: object
+      required: [content]
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        mood:
+          type: string
+          enum: [great, good, okay, bad, awful]
+        tags:
+          type: array
+          items:
+            type: string
+
+    JournalUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        mood:
+          type: string
+          enum: [great, good, okay, bad, awful]
+        tags:
+          type: array
+          items:
+            type: string
+
+    # ── AI / BCI Schemas ──────────────────────────────────────────────────────
+    AIStatus:
+      type: object
+      required: [configured, provider, model]
+      properties:
+        configured:
+          type: boolean
+        provider:
+          type: string
+        model:
+          type: string
+        userAIEnabled:
+          type: boolean
+
+    BCIBreakdown:
+      type: object
+      required: [streakConsistency, completionRate, timeConsistency, goalAlignment]
+      properties:
+        streakConsistency:
+          type: number
+        completionRate:
+          type: number
+        timeConsistency:
+          type: number
+        goalAlignment:
+          type: number
+
+    BCIPrediction:
+      type: object
+      required: [successProbability, recommendation]
+      properties:
+        successProbability:
+          type: number
+        recommendation:
+          type: string
+
+    BCIResult:
+      type: object
+      required: [score, grade, breakdown, interpretation, prediction]
+      properties:
+        score:
+          type: number
+        grade:
+          type: string
+        breakdown:
+          $ref: "#/components/schemas/BCIBreakdown"
+        interpretation:
+          type: string
+        prediction:
+          $ref: "#/components/schemas/BCIPrediction"
+
+    AnalyzeBehaviorInput:
+      type: object
+      properties:
+        useAI:
+          type: boolean
+        goalId:
+          type: ["integer", "null"]
+
+    BehaviorAnalysisResult:
+      type: object
+      required: [bci]
+      properties:
+        bci:
+          $ref: "#/components/schemas/BCIResult"
+        aiInsights:
+          type: ["object", "null"]
+          properties:
+            patterns:
+              type: array
+              items:
+                type: string
+            recommendations:
+              type: array
+              items:
+                type: string
+            focusArea:
+              type: string
+            motivationalMessage:
+              type: string
+
+    DecomposeGoalInput:
+      type: object
+      required: [goalId]
+      properties:
+        goalId:
+          type: integer
+
+    GoalDecompositionResult:
+      type: object
+      required: [milestones]
+      properties:
+        milestones:
+          type: array
+          items:
+            $ref: "#/components/schemas/Milestone"
+        reasoning:
+          type: string
+
+    ReflectionInput:
+      type: object
+      required: [entryId]
+      properties:
+        entryId:
+          type: integer
+
+    ReflectionResult:
+      type: object
+      required: [analysis]
+      properties:
+        analysis:
+          $ref: "#/components/schemas/AIAnalysis"
+
+    TaskOptimizationResult:
+      type: object
+      required: [tasks]
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Task"
+        reasoning:
+          type: string
+
+    DashboardSummary:
+      type: object
+      required: [habits, goals, tasks, journal, bci]
+      properties:
+        habits:
+          type: object
+          required: [total, activeToday, completedToday, avgStreak]
+          properties:
+            total:
+              type: integer
+            activeToday:
+              type: integer
+            completedToday:
+              type: integer
+            avgStreak:
+              type: number
+        goals:
+          type: object
+          required: [total, active, completed, avgProgress]
+          properties:
+            total:
+              type: integer
+            active:
+              type: integer
+            completed:
+              type: integer
+            avgProgress:
+              type: number
+        tasks:
+          type: object
+          required: [total, todo, inProgress, completed, urgent]
+          properties:
+            total:
+              type: integer
+            todo:
+              type: integer
+            inProgress:
+              type: integer
+            completed:
+              type: integer
+            urgent:
+              type: integer
+        journal:
+          type: object
+          required: [totalEntries, thisWeek, avgWordCount]
+          properties:
+            totalEntries:
+              type: integer
+            thisWeek:
+              type: integer
+            avgWordCount:
+              type: number
+        bci:
+          $ref: "#/components/schemas/BCIResult"
