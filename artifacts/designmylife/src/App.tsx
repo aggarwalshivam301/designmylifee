@@ -1,26 +1,68 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
+import { useAuth } from "@/hooks/use-auth";
+import { useEffect } from "react";
+import { setAuthTokenGetter } from "@workspace/api-client-react";
+
+import AppLayout from "@/components/layout/app-layout";
+import Login from "@/pages/login";
+import Register from "@/pages/register";
+import Dashboard from "@/pages/dashboard";
+import Habits from "@/pages/habits";
+import Goals from "@/pages/goals";
+import Tasks from "@/pages/tasks";
+import Journal from "@/pages/journal";
+import Analytics from "@/pages/analytics";
+import Focus from "@/pages/focus";
+import Settings from "@/pages/settings";
 
 const queryClient = new QueryClient();
 
-function Home() {
+// Configure the api client to use the token from zustand
+setAuthTokenGetter(() => {
+  const token = localStorage.getItem("dml_token");
+  return token;
+});
+
+function ProtectedRoute({ component: Component, ...rest }: { component: any, path: string }) {
+  const { token } = useAuth();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!token) {
+      setLocation("/login");
+    }
+  }, [token, setLocation]);
+
+  if (!token) return null;
+
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900">Replit Agent is building...</h1>
-        <p className="mt-2 text-sm text-gray-600">Your app will appear here once it's ready.</p>
-      </div>
-    </div>
+    <Route {...rest}>
+      <AppLayout>
+        <Component />
+      </AppLayout>
+    </Route>
   );
 }
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      
+      <ProtectedRoute path="/" component={Dashboard} />
+      <ProtectedRoute path="/habits" component={Habits} />
+      <ProtectedRoute path="/goals" component={Goals} />
+      <ProtectedRoute path="/tasks" component={Tasks} />
+      <ProtectedRoute path="/journal" component={Journal} />
+      <ProtectedRoute path="/analytics" component={Analytics} />
+      <ProtectedRoute path="/focus" component={Focus} />
+      <ProtectedRoute path="/settings" component={Settings} />
+      
       <Route component={NotFound} />
     </Switch>
   );
@@ -30,7 +72,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <WouterRouter base={import.meta.env.BASE_URL?.replace(/\/$/, "") || ""}>
           <Router />
         </WouterRouter>
         <Toaster />
