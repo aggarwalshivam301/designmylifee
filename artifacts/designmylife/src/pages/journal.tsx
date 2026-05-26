@@ -18,8 +18,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpen, Plus, Pencil, Trash2, FileText } from "lucide-react";
+import { BookOpen, Plus, Pencil, Trash2, FileText, Sparkles, Loader2, Brain, Tag } from "lucide-react";
 
 interface JournalEntry {
   id: number;
@@ -30,6 +31,14 @@ interface JournalEntry {
   wordCount: number;
   createdAt: string;
   updatedAt: string;
+  aiAnalysis?: {
+    themes: string[];
+    insights: string[];
+    suggestions: string[];
+    sentiment: string;
+    emotionalTone?: string;
+    analyzedAt: string;
+  } | null;
 }
 
 const MOODS = [
@@ -40,14 +49,18 @@ const MOODS = [
   { value: "awful", label: "Awful", color: "bg-destructive/10 text-destructive border-destructive/20" },
 ];
 
+const SENTIMENT_COLOR: Record<string, string> = {
+  positive: "text-chart-1",
+  neutral: "text-muted-foreground",
+  negative: "text-destructive",
+};
+
 function getMoodStyle(mood: string) {
   return MOODS.find(m => m.value === mood)?.color || "bg-muted text-muted-foreground";
 }
-
 function getMoodLabel(mood: string) {
   return MOODS.find(m => m.value === mood)?.label || mood;
 }
-
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
@@ -55,6 +68,19 @@ function timeAgo(dateStr: string): string {
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h ago`;
   return `${Math.floor(hours / 24)}d ago`;
+}
+function getToken(): string {
+  return localStorage.getItem("dml_token") || "";
+}
+
+async function analyzeEntry(entryId: number) {
+  const res = await fetch("/api/ai/analyze-reflection", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+    body: JSON.stringify({ entryId }),
+  });
+  if (!res.ok) throw new Error("Analysis failed");
+  return res.json();
 }
 
 export default function Journal() {
@@ -71,6 +97,10 @@ export default function Journal() {
   const [viewEntry, setViewEntry] = useState<JournalEntry | null>(null);
   const [form, setForm] = useState({ title: "", content: "", mood: "okay", tags: "" });
 
+  // AI analysis state
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<JournalEntry["aiAnalysis"] | null>(null);
+
   const invalidate = () => queryClient.invalidateQueries({ queryKey: getListJournalEntriesQueryKey() });
 
   const openCreate = () => {
@@ -81,14 +111,15 @@ export default function Journal() {
 
   const openEdit = (e: JournalEntry) => {
     setEditTarget(e);
-    setForm({
-      title: e.title || "",
-      content: e.content,
-      mood: e.mood,
-      tags: e.tags.join(", "),
-    });
+    setForm({ title: e.title || "", content: e.content, mood: e.mood, tags: e.tags.join(", ") });
     setViewEntry(null);
     setShowDialog(true);
+  };
+
+  const openView = (entry: JournalEntry) => {
+    setViewEntry(entry);
+    // Show cached AI analysis if it exists
+    setAnalysis(entry.aiAnalysis || null);
   };
 
   const handleSave = () => {
@@ -96,27 +127,36 @@ export default function Journal() {
     const tags = form.tags.split(",").map(t => t.trim()).filter(Boolean);
     if (editTarget) {
       updateEntry.mutate({ id: editTarget.id, data: {
-        title: form.title || undefined,
-        content: form.content,
-        mood: form.mood as JournalUpdateMood,
-        tags,
-      } }, {
-        onSuccess: () => { invalidate(); setShowDialog(false); toast({ title: "Entry updated" }); },
-      });
+        title: form.title || undefined, content: form.content,
+        mood: form.mood as JournalUpdateMood, tags,
+      } }, { onSuccess: () => { invalidate(); setShowDialog(false); toast({ title: "Entry updated" }); } });
     } else {
       createEntry.mutate({ data: {
-        title: form.title || undefined,
-        content: form.content,
-        mood: form.mood as JournalInputMood,
-        tags,
-      } }, {
-        onSuccess: () => { invalidate(); setShowDialog(false); toast({ title: "Entry saved" }); },
-      });
+        title: form.title || undefined, content: form.content,
+        mood: form.mood as JournalInputMood, tags,
+      } }, { onSuccess: () => { invalidate(); setShowDialog(false); toast({ title: "Entry saved" }); } });
     }
   };
 
   const handleDelete = (id: number) => {
     deleteEntry.mutate({ id }, { onSuccess: () => { invalidate(); setViewEntry(null); toast({ title: "Entry deleted" }); } });
+  };
+
+  const handleAnalyze = async () => {
+    if (!viewEntry) return;
+    setAnalyzing(true);
+    setAnalysis(null);
+    try {
+      const result = await analyzeEntry(viewEntry.id);
+      setAnalysis(result.analysis);
+      // Update local list so re-opening shows cached analysis
+      invalidate();
+      toast({ title: "AI analysis complete" });
+    } catch {
+      toast({ variant: "destructive", title: "Analysis failed", description: "Check that your GOOGLE_API_KEY is configured." });
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   if (isLoading) {
@@ -166,19 +206,23 @@ export default function Journal() {
           <Card
             key={entry.id}
             className="hover:shadow-md transition-all cursor-pointer"
-            onClick={() => setViewEntry(entry)}
+            onClick={() => openView(entry)}
             data-testid={`entry-card-${entry.id}`}
           >
             <CardHeader className="pb-2">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  {entry.title ? (
-                    <CardTitle className="text-base font-semibold leading-snug">{entry.title}</CardTitle>
-                  ) : (
-                    <CardTitle className="text-base font-semibold text-muted-foreground leading-snug">Untitled</CardTitle>
-                  )}
+                  {entry.title
+                    ? <CardTitle className="text-base font-semibold leading-snug">{entry.title}</CardTitle>
+                    : <CardTitle className="text-base font-semibold text-muted-foreground leading-snug">Untitled</CardTitle>
+                  }
                   <CardDescription className="mt-1">
                     {timeAgo(entry.createdAt)} &middot; {entry.wordCount} words
+                    {entry.aiAnalysis && (
+                      <span className="ml-2 text-primary text-xs inline-flex items-center gap-0.5">
+                        <Sparkles className="w-3 h-3" /> analyzed
+                      </span>
+                    )}
                   </CardDescription>
                 </div>
                 <Badge className={`text-xs shrink-0 ${getMoodStyle(entry.mood)}`} variant="outline">
@@ -187,15 +231,11 @@ export default function Journal() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
-                {entry.content}
-              </p>
+              <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">{entry.content}</p>
               {entry.tags.length > 0 && (
                 <div className="flex gap-1.5 mt-3 flex-wrap">
                   {entry.tags.slice(0, 4).map(tag => (
-                    <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                      {tag}
-                    </span>
+                    <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{tag}</span>
                   ))}
                 </div>
               )}
@@ -204,10 +244,10 @@ export default function Journal() {
         ))}
       </div>
 
-      {/* View Entry Dialog */}
-      <Dialog open={!!viewEntry} onOpenChange={() => setViewEntry(null)}>
+      {/* ── View Entry Dialog ── */}
+      <Dialog open={!!viewEntry} onOpenChange={() => { setViewEntry(null); setAnalysis(null); }}>
         {viewEntry && (
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -222,32 +262,141 @@ export default function Journal() {
                 </Badge>
               </div>
             </DialogHeader>
-            <div className="max-h-96 overflow-y-auto">
+
+            {/* Entry content */}
+            <div className="rounded-lg bg-muted/30 p-4">
               <p className="text-sm leading-relaxed whitespace-pre-wrap">{viewEntry.content}</p>
             </div>
+
             {viewEntry.tags.length > 0 && (
-              <div className="flex gap-1.5 flex-wrap">
+              <div className="flex gap-1.5 flex-wrap items-center">
+                <Tag className="w-3.5 h-3.5 text-muted-foreground" />
                 {viewEntry.tags.map(tag => (
                   <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{tag}</span>
                 ))}
               </div>
             )}
-            <DialogFooter>
-              <Button variant="outline" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete(viewEntry.id)} data-testid={`button-delete-entry-${viewEntry.id}`}>
-                <Trash2 className="w-4 h-4 mr-2" />
+
+            {/* ── AI Analysis Panel ── */}
+            <div className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Brain className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium text-primary">AI Analysis</span>
+                  {analysis?.analyzedAt && (
+                    <span className="text-xs text-muted-foreground">
+                      &middot; {timeAgo(analysis.analyzedAt)}
+                    </span>
+                  )}
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs border-primary/30 text-primary hover:bg-primary/10 gap-1"
+                  onClick={handleAnalyze}
+                  disabled={analyzing}
+                >
+                  {analyzing
+                    ? <><Loader2 className="w-3 h-3 animate-spin" /> Analyzing...</>
+                    : <><Sparkles className="w-3 h-3" /> {analysis ? "Re-analyze" : "Analyze"}</>
+                  }
+                </Button>
+              </div>
+
+              {analyzing && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                  Gemini is reading your entry...
+                </div>
+              )}
+
+              {!analyzing && !analysis && (
+                <p className="text-xs text-muted-foreground">
+                  Click Analyze to get AI-powered insights — themes, emotional tone, and personalized suggestions based on what you wrote.
+                </p>
+              )}
+
+              {analysis && !analyzing && (
+                <div className="space-y-3">
+                  {/* Sentiment + tone */}
+                  <div className="flex items-center gap-3 text-sm">
+                    <span className="text-muted-foreground">Sentiment:</span>
+                    <span className={`font-medium capitalize ${SENTIMENT_COLOR[analysis.sentiment] || "text-foreground"}`}>
+                      {analysis.sentiment}
+                    </span>
+                    {analysis.emotionalTone && (
+                      <>
+                        <span className="text-muted-foreground">&middot; Tone:</span>
+                        <span className="font-medium capitalize text-foreground">{analysis.emotionalTone}</span>
+                      </>
+                    )}
+                  </div>
+
+                  <Separator />
+
+                  {/* Themes */}
+                  {analysis.themes?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Themes</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {analysis.themes.map(theme => (
+                          <span key={theme} className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                            {theme}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Insights */}
+                  {analysis.insights?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Insights</p>
+                      <ul className="space-y-1.5">
+                        {analysis.insights.map((insight, i) => (
+                          <li key={i} className="text-sm text-foreground flex items-start gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                            {insight}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Suggestions */}
+                  {analysis.suggestions?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Suggestions</p>
+                      <ul className="space-y-1.5">
+                        {analysis.suggestions.map((s, i) => (
+                          <li key={i} className="text-sm text-foreground flex items-start gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-chart-1 mt-2 shrink-0" />
+                            {s}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+              <Button variant="outline" className="text-destructive hover:bg-destructive/10 w-full sm:w-auto" onClick={() => handleDelete(viewEntry.id)}>
+                <Trash2 className="w-4 h-4 mr-1.5" />
                 Delete
               </Button>
-              <Button variant="outline" onClick={() => openEdit(viewEntry)} data-testid={`button-edit-entry-${viewEntry.id}`}>
-                <Pencil className="w-4 h-4 mr-2" />
+              <Button variant="outline" onClick={() => openEdit(viewEntry)} className="w-full sm:w-auto">
+                <Pencil className="w-4 h-4 mr-1.5" />
                 Edit
               </Button>
-              <Button onClick={() => setViewEntry(null)}>Close</Button>
+              <Button onClick={() => { setViewEntry(null); setAnalysis(null); }} className="w-full sm:w-auto">Close</Button>
             </DialogFooter>
           </DialogContent>
         )}
       </Dialog>
 
-      {/* Create/Edit Dialog */}
+      {/* ── Create / Edit Dialog ── */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -267,13 +416,9 @@ export default function Journal() {
               <div className="space-y-2">
                 <Label>Mood</Label>
                 <Select value={form.mood} onValueChange={v => setForm(f => ({ ...f, mood: v }))}>
-                  <SelectTrigger data-testid="select-mood">
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger data-testid="select-mood"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {MOODS.map(m => (
-                      <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                    ))}
+                    {MOODS.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
