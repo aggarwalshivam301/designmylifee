@@ -89,6 +89,127 @@ Return ONLY valid JSON.`;
   res.json({ bci, aiInsights });
 });
 
+// POST /api/ai/elaborate-goal — turn a vague idea into a full structured goal
+router.post("/ai/elaborate-goal", protect, async (req, res): Promise<void> => {
+  const { vague } = req.body;
+  if (!vague || typeof vague !== "string") {
+    res.status(400).json({ message: "vague description is required" }); return;
+  }
+
+  const { randomUUID } = await import("crypto");
+
+  const aiClient = getAIClient();
+  if (!aiClient) {
+    // Fallback: smart heuristics — detect category from keywords
+    const lower = vague.toLowerCase();
+    let category = "other";
+    if (/fit|gym|health|run|weight|sleep|diet|exercise|sport/.test(lower)) category = "health";
+    else if (/career|job|work|promot|skill|earn|salary|business/.test(lower)) category = "career";
+    else if (/learn|study|course|read|book|degree|certif/.test(lower)) category = "learning";
+    else if (/money|save|invest|debt|budget|finance|rich/.test(lower)) category = "finance";
+    else if (/friend|family|relation|social|connect|network/.test(lower)) category = "relationships";
+    else if (/build|launch|ship|app|project|product|website/.test(lower)) category = "project";
+
+    const templates: Record<string, { title: string; description: string; milestones: string[] }> = {
+      health: {
+        title: "Improve my health and fitness",
+        description: "Build consistent healthy habits to reach my physical wellness goals.",
+        milestones: ["Establish baseline (weight, measurements, fitness level)", "Build a weekly workout routine", "Track nutrition for 30 days", "Reach midpoint target", "Hit the final goal"],
+      },
+      career: {
+        title: "Advance my career",
+        description: "Take deliberate steps to grow professionally and reach my next career milestone.",
+        milestones: ["Define the target role and success criteria", "Identify skill gaps and create a plan", "Complete key learning or credentials", "Apply or take action toward the goal", "Achieve and reflect"],
+      },
+      learning: {
+        title: "Master a new skill",
+        description: "Dedicate focused time to learning and applying a new capability.",
+        milestones: ["Gather resources and set a learning schedule", "Complete foundational content", "Build a practice project or exercise", "Reach intermediate proficiency", "Apply or teach what you learned"],
+      },
+      finance: {
+        title: "Reach a financial milestone",
+        description: "Take control of finances and hit a meaningful money goal.",
+        milestones: ["Audit current income, expenses, and savings", "Set a specific savings or investment target", "Automate contributions", "Review and adjust at 90 days", "Hit the target"],
+      },
+      relationships: {
+        title: "Strengthen key relationships",
+        description: "Invest in the people who matter most.",
+        milestones: ["Identify 3-5 people to prioritize", "Schedule regular check-ins or meetups", "Deepen connection through shared experiences", "Follow through on commitments", "Reflect and expand the circle"],
+      },
+      project: {
+        title: "Ship a project",
+        description: "Take a project from idea to completion.",
+        milestones: ["Define scope and success criteria", "Build the MVP or first version", "Get feedback from real users or stakeholders", "Iterate based on feedback", "Launch or deliver the final version"],
+      },
+      other: {
+        title: vague.length > 60 ? vague.slice(0, 60) + "..." : vague,
+        description: "A meaningful goal worth pursuing with clear milestones.",
+        milestones: ["Define what success looks like", "Research and plan", "Take the first concrete step", "Build momentum and track progress", "Complete and celebrate"],
+      },
+    };
+
+    const t = templates[category];
+    const milestones = t.milestones.map(title => ({ id: randomUUID(), title, done: false, dueDate: null }));
+    const targetDate = new Date();
+    targetDate.setMonth(targetDate.getMonth() + 3);
+
+    res.json({
+      title: t.title,
+      description: t.description,
+      category,
+      targetDate: targetDate.toISOString().split("T")[0],
+      milestones,
+      reasoning: "AI not configured — used keyword detection and category templates.",
+    });
+    return;
+  }
+
+  try {
+    const prompt = `A user wants to set a goal but described it vaguely: "${vague}"
+
+Turn this into a well-structured, specific, and actionable goal. Return ONLY valid JSON with these keys:
+{
+  "title": "concise, specific goal title (max 60 chars)",
+  "description": "1-2 sentences explaining the goal and why it matters",
+  "category": one of "career" | "health" | "learning" | "finance" | "relationships" | "project" | "other",
+  "targetDate": "ISO date string YYYY-MM-DD roughly 3 months from today (${new Date().toISOString().split("T")[0]}), adjust if the goal is larger or smaller",
+  "milestones": [
+    { "title": "specific actionable milestone", "dueDate": null }
+  ],
+  "reasoning": "brief explanation of how you interpreted the vague input"
+}
+
+Rules:
+- 4-6 milestones, ordered logically from start to finish
+- Each milestone should be a concrete action, not vague
+- Make the goal SMART: Specific, Measurable, Achievable, Relevant, Time-bound
+- Return ONLY the JSON object, no markdown`;
+
+    const message = await aiClient.messages.create({
+      model: process.env.AI_MODEL || "claude-sonnet-4-6",
+      max_tokens: 1200,
+      messages: [{ role: "user", content: prompt }],
+    });
+    const text = message.content[0].type === "text" ? message.content[0].text : "";
+    const parsed = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] || "{}");
+
+    const milestones = (parsed.milestones || []).map((m: { title: string; dueDate?: string | null }) => ({
+      id: randomUUID(), title: m.title, done: false, dueDate: m.dueDate || null,
+    }));
+
+    res.json({
+      title: parsed.title || vague,
+      description: parsed.description || "",
+      category: parsed.category || "other",
+      targetDate: parsed.targetDate || "",
+      milestones,
+      reasoning: parsed.reasoning || "",
+    });
+  } catch {
+    res.status(500).json({ message: "AI elaboration failed" });
+  }
+});
+
 // POST /api/ai/decompose-goal
 router.post("/ai/decompose-goal", protect, async (req, res): Promise<void> => {
   const authReq = req as AuthRequest;
