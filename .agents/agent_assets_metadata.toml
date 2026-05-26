@@ -12,3 +12,9 @@ id = "hcD9oeBG3N2PiqoBPMRbw"
 uri = "file://guides/DesignMyLife-User-Guide.tar.gz"
 type = "unspecified"
 title = "DesignMyLife User Guide (HTML + DOCX archive)"
+
+[[outputs]]
+id = "5OnsF4oTWCNkxia604IYi"
+uri = "file://DesignMyLife-User-Guide.md"
+type = "text"
+title = "DesignMyLife User Guide"
